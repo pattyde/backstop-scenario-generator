@@ -1,9 +1,10 @@
+#!/usr/bin/env node
+
 const fs = require( 'fs' );
+const url = require( 'url' );
+const path = require( 'path' );
 
 // CONFIG
-const urls = [ '' ]; // An array of URLs (strings) that you want to create scenarios for in Backstop
-const baseUrl = ''; // The base URL (string) for your application, typically a local build or staging environment
-const referenceBaseUrl = ''; // The base reference URL (string) for your application, typically your production envrionment
 const testTemplate = { // Template for your backstop.json configuration file. Add viewports and adjust global settings here
 	'id': '',
 	'viewports': [
@@ -43,11 +44,11 @@ const testTemplate = { // Template for your backstop.json configuration file. Ad
  *
  * @return {object}     - The config object
  */
-const createScenario = ( url ) => ({
+const createScenario = ( url, referenceUrl ) => ({
 	'label': setLabel( url ),
 	'cookiePath': 'backstop_data/engine_scripts/cookies.json',
 	'url': url,
-	'referenceUrl': setReferenceUrl( url ),
+	'referenceUrl': setReferenceUrl( url, referenceUrl ),
 	'readyEvent': '',
 	'readySelector': '',
 	'delay': 0,
@@ -63,6 +64,12 @@ const createScenario = ( url ) => ({
 	'requireSameDimensions': true
 });
 
+const getSettings = () => {
+	const cwd = process.cwd();
+	const pkg = fs.readFileSync( `${cwd}/package.json`, 'utf8' );
+	return JSON.parse( pkg )['backstop-scenario-generator'];
+}
+
 /**
  * Generate a label based on the url
  *
@@ -70,10 +77,10 @@ const createScenario = ( url ) => ({
  *
  * @return {string}     - The label to be applied to the scenario
  */
-const setLabel = ( url ) =>
-	url.endsWith( baseUrl )
+const setLabel = ( thisUrl ) =>
+	thisUrl.endsWith( url.parse( thisUrl ).hostname )
 		? 'homepage'
-		: page = url.slice( baseUrl.length + 1 ).concat(' page');
+		: `${thisUrl.replace( url.parse( thisUrl ).hostname, '' )} page`;
 
 /**
  * Generate a reference url
@@ -82,10 +89,16 @@ const setLabel = ( url ) =>
  *
  * @return {string}     - The reference url to be applied to the scenario
  */
-const setReferenceUrl = ( url ) =>
-	url.includes( baseUrl )
-		? url.replace( baseUrl, referenceBaseUrl )
-		: referenceBaseUrl;
+const setReferenceUrl = ( thisUrl, referenceUrl ) =>
+	thisUrl.includes( url.parse( thisUrl ).hostname )
+		? thisUrl.replace( url.parse( thisUrl ).hostname, referenceUrl )
+		: referenceUrl;
+
+		// append path to the end of referenceUrl
+		// get first bit of url, returns the first bit of url incuding protocol, host, port, then replace with nothing or the referenceUrl
+
+// const parseUrl = ( thisUrl ) =>
+// 	url.parse ( thisUrl ).origin;
 
 /**
  * Generate json configuration file
@@ -95,16 +108,15 @@ const setReferenceUrl = ( url ) =>
  *
  * @return {object}          - The finished object
  */
-const generateObject = ( urls, template = testTemplate ) => {
+const generateObject = ( settings, template = testTemplate ) => {
 	const scenarios = [];
-
-	urls.forEach( function( url ) {
-		scenarios.push( createScenario( url ) );
+	settings.urls.forEach( url => {
+		scenarios.push( createScenario( url, settings.referenceUrl ) );
 	});
 
 	template.scenarios = scenarios;
 
-	return testTemplate;
+	return template;
 }
 
 /**
@@ -113,8 +125,8 @@ const generateObject = ( urls, template = testTemplate ) => {
  * @param  {array}  allUrls  - A list of all urls
  * @param  {string} filename - The filname the json needs to be written to
  */
-const writeFile = ( allUrls = urls, filename = 'backstop.json' ) => {
-	let content = generateObject( allUrls );
+const writeFile = ( settings, filename = 'backstop.json' ) => {
+	let content = generateObject( settings, testTemplate );
 	content = JSON.stringify( content, null, '\t' );
 
 	fs.writeFile( filename, content, ( error ) => {
@@ -127,4 +139,6 @@ const writeFile = ( allUrls = urls, filename = 'backstop.json' ) => {
 }
 
 // MAIN PROGRAMM
-writeFile();
+
+const settings = getSettings();
+writeFile( settings );
