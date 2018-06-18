@@ -3,8 +3,10 @@
 const fs = require( 'fs' );
 const url = require( 'url' );
 const path = require( 'path' );
+const getSiteUrls = require( 'get-site-urls' );
 
 // CONFIG
+
 const testTemplate = { // Template for your backstop.json configuration file. Add viewports and adjust global settings here
 	'id': '',
 	'viewports': [
@@ -38,17 +40,18 @@ const testTemplate = { // Template for your backstop.json configuration file. Ad
 /**
  * Settings here will be applied to each scenario generated
  * label, url, and referenceUrl will be unique for each scenario based on the
- * urls constant
+ * scenarioUrl
  *
- * @param  {string} url - The url for this scenario
+ * @param  {string} scenarioUrl 		- The URL to test for this scenario
+ * @param  {string} referenceUrl 		- The URL to test against for this scenario
  *
- * @return {object}     - The config object
+ * @return {object}									- The scenario object
  */
-const createScenario = ( url, referenceUrl ) => ({
-	'label': setLabel( url ),
+const createScenario = ( scenarioUrl, referenceUrl ) => ({
+	'label': setLabel( scenarioUrl ),
 	'cookiePath': 'backstop_data/engine_scripts/cookies.json',
-	'url': url,
-	'referenceUrl': setReferenceUrl( url, referenceUrl ),
+	'url': scenarioUrl,
+	'referenceUrl': setReferenceUrl( scenarioUrl, referenceUrl ),
 	'readyEvent': '',
 	'readySelector': '',
 	'delay': 0,
@@ -64,6 +67,12 @@ const createScenario = ( url, referenceUrl ) => ({
 	'requireSameDimensions': true
 });
 
+/**
+ * Return settings from package.json
+ *
+* @return {object}	- The config object
+*/
+
 const getSettings = () => {
 	const cwd = process.cwd();
 	const pkg = fs.readFileSync( `${cwd}/package.json`, 'utf8' );
@@ -71,47 +80,40 @@ const getSettings = () => {
 }
 
 /**
- * Generate a label based on the url
+ * Generate a unique label based on the url
  *
- * @param  {string} url - The url unprocessed
+ * @param  {string} scenarioUrl	- The url unprocessed
  *
- * @return {string}     - The label to be applied to the scenario
+ * @return {string}							- The label for the scenario
  */
-const setLabel = ( thisUrl ) =>
-	thisUrl.endsWith( url.parse( thisUrl ).hostname )
+const setLabel = ( scenarioUrl ) =>
+	scenarioUrl === settings.testUrl
 		? 'homepage'
-		: `${thisUrl.replace( url.parse( thisUrl ).hostname, '' )} page`;
+		: `${ url.parse( scenarioUrl ).path } page`;
 
 /**
  * Generate a reference url
  *
- * @param  {string} url - The url unprocessed
+ * @param  {string} scenarioUrl	- The url unprocessed
  *
- * @return {string}     - The reference url to be applied to the scenario
+ * @return {string}							- The reference url for the scenario
  */
-const setReferenceUrl = ( thisUrl, referenceUrl ) =>
-	thisUrl.includes( url.parse( thisUrl ).hostname )
-		? thisUrl.replace( url.parse( thisUrl ).hostname, referenceUrl )
-		: referenceUrl;
-
-		// append path to the end of referenceUrl
-		// get first bit of url, returns the first bit of url incuding protocol, host, port, then replace with nothing or the referenceUrl
-
-// const parseUrl = ( thisUrl ) =>
-// 	url.parse ( thisUrl ).origin;
+const setReferenceUrl = ( scenarioUrl, referenceUrl ) =>
+	referenceUrl + url.parse( scenarioUrl ).path;
 
 /**
- * Generate json configuration file
+ * Generate JSON configuration file
  *
- * @param  {array}  urls     - A list of all urls
- * @param  {object} template - The template object
+ * @param  {object} settings		- Settings object from the package.json file
+ * @param  {object} template		- The template object
  *
- * @return {object}          - The finished object
+ * @return {object}							- The finished object
  */
-const generateObject = ( settings, template = testTemplate ) => {
+const generateObject = async ( settings, template = testTemplate ) => {
 	const scenarios = [];
-	settings.urls.forEach( url => {
-		scenarios.push( createScenario( url, settings.referenceUrl ) );
+	const urls = await getSiteUrls( settings.testUrl );
+	urls.pages.forEach( scenarioUrl => {
+		scenarios.push( createScenario( scenarioUrl, settings.referenceUrl ) );
 	});
 
 	template.scenarios = scenarios;
@@ -122,11 +124,10 @@ const generateObject = ( settings, template = testTemplate ) => {
 /**
  * Writes backstop.json to the current directory
  *
- * @param  {array}  allUrls  - A list of all urls
- * @param  {string} filename - The filname the json needs to be written to
+ * @param  {string} filename - The filname for the configuration file
  */
-const writeFile = ( settings, filename = 'backstop.json' ) => {
-	let content = generateObject( settings, testTemplate );
+const writeFile = async ( settings, filename = 'backstop.json' ) => {
+	let content = await generateObject( settings, testTemplate );
 	content = JSON.stringify( content, null, '\t' );
 
 	fs.writeFile( filename, content, ( error ) => {
