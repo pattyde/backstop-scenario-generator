@@ -129,7 +129,7 @@ const writeFile = async ( settings, filename = 'backstop.json' ) => {
 }
 
 // MAIN PROGRAMM
-
+prompt.message = '';
 prompt.start();
 
 /**

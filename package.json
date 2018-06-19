@@ -2,7 +2,7 @@
 	"name": "backstop-scenario-generator",
 	"version": "1.0.0",
 	"description": "Automatically generate BackstopJS scenarios.",
-	"main": "generate-scenarios.js",
+	"main": "index.js",
 	"scripts": {
 		"test": "echo \"Error: no test specified\" && exit 1"
 	},
@@ -36,7 +36,7 @@
 	"license": "GPL-3.0-or-later",
 	"homepage": "https://github.com/pattyde/backstop-scenario-generator#readme",
 	"bin": {
-		"generate-scenarios": "generate-scenarios.js"
+		"generate-scenarios": "index.js"
 	},
 	"dependencies": {
 		"get-site-urls": "^1.0.1",
