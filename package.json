@@ -1,0 +1,45 @@
+{
+	"name": "backstop-scenario-generator",
+	"version": "1.0.0",
+	"description": "Automatically generate BackstopJS scenarios.",
+	"main": "index.js",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/pattyde/backstop-scenario-generator.git"
+	},
+	"keywords": [
+		"backstopJS"
+	],
+	"bugs": {
+		"url": "https://github.com/pattyde/backstop-scenario-generator/issues"
+	},
+	"author": {
+		"name": "Patrick De Young",
+		"email": "hello@patrickdeyoung.me",
+		"url": "https://patrickdeyoung.me"
+	},
+	"contributors": [
+		{
+			"name": "Dominik Wilkowski",
+			"email": "hi@dominik-wilkowski.com",
+			"url": "https://dominik-wilkowski.com/"
+		},
+		{
+			"name": "Alex Page",
+			"email": "alex@alexpage.com.au",
+			"url": "http://alexpage.com.au"
+		}
+	],
+	"license": "GPL-3.0-or-later",
+	"homepage": "https://github.com/pattyde/backstop-scenario-generator#readme",
+	"bin": {
+		"generate-scenarios": "index.js"
+	},
+	"dependencies": {
+		"get-site-urls": "^1.0.1",
+		"prompt": "^1.0.0"
+	}
+}
