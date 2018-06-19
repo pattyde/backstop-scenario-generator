@@ -38,11 +38,8 @@
 	"bin": {
 		"generate-scenarios": "generate-scenarios.js"
 	},
-	"backstop-scenario-generator": {
-		"referenceUrl": "",
-		"testUrl": ""
-	},
 	"dependencies": {
-		"get-site-urls": "^1.0.1"
+		"get-site-urls": "^1.0.1",
+		"prompt": "^1.0.0"
 	}
 }

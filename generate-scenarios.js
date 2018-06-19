@@ -3,6 +3,7 @@
 const fs = require( 'fs' );
 const url = require( 'url' );
 const path = require( 'path' );
+const prompt = require( 'prompt' );
 const getSiteUrls = require( 'get-site-urls' );
 
 // CONFIG
@@ -47,11 +48,11 @@ const testTemplate = { // Template for your backstop.json configuration file. Ad
  *
  * @return {object}									- The scenario object
  */
-const createScenario = ( scenarioUrl, referenceUrl ) => ({
-	'label': setLabel( scenarioUrl ),
+const createScenario = ( scenarioUrl, settings ) => ({
+	'label': setLabel( scenarioUrl, settings ),
 	'cookiePath': 'backstop_data/engine_scripts/cookies.json',
 	'url': scenarioUrl,
-	'referenceUrl': setReferenceUrl( scenarioUrl, referenceUrl ),
+	'referenceUrl': setReferenceUrl( scenarioUrl, settings[ 'Reference URL' ] ),
 	'readyEvent': '',
 	'readySelector': '',
 	'delay': 0,
@@ -68,26 +69,14 @@ const createScenario = ( scenarioUrl, referenceUrl ) => ({
 });
 
 /**
- * Return settings from package.json
- *
-* @return {object}	- The config object
-*/
-
-const getSettings = () => {
-	const cwd = process.cwd();
-	const pkg = fs.readFileSync( `${cwd}/package.json`, 'utf8' );
-	return JSON.parse( pkg )['backstop-scenario-generator'];
-}
-
-/**
  * Generate a unique label based on the url
  *
  * @param  {string} scenarioUrl	- The url unprocessed
  *
  * @return {string}							- The label for the scenario
  */
-const setLabel = ( scenarioUrl ) =>
-	scenarioUrl === settings.testUrl
+const setLabel = ( scenarioUrl, settings ) =>
+	scenarioUrl === settings['Test URL']
 		? 'homepage'
 		: `${ url.parse( scenarioUrl ).path } page`;
 
@@ -104,16 +93,16 @@ const setReferenceUrl = ( scenarioUrl, referenceUrl ) =>
 /**
  * Generate JSON configuration file
  *
- * @param  {object} settings		- Settings object from the package.json file
+ * @param  {object} settings		- Settings object from the console prompt
  * @param  {object} template		- The template object
  *
  * @return {object}							- The finished object
  */
 const generateObject = async ( settings, template = testTemplate ) => {
 	const scenarios = [];
-	const urls = await getSiteUrls( settings.testUrl );
+	const urls = await getSiteUrls( settings['Test URL'] );
 	urls.pages.forEach( scenarioUrl => {
-		scenarios.push( createScenario( scenarioUrl, settings.referenceUrl ) );
+		scenarios.push( createScenario( scenarioUrl, settings ) );
 	});
 
 	template.scenarios = scenarios;
@@ -141,5 +130,14 @@ const writeFile = async ( settings, filename = 'backstop.json' ) => {
 
 // MAIN PROGRAMM
 
-const settings = getSettings();
-writeFile( settings );
+prompt.start();
+
+/**
+ * Get test URL and reference URL from the user
+ *
+ * @return {object}		Settings object with test and reference URLs
+*/
+prompt.get([ 'Test URL', 'Reference URL' ], ( err, result ) => {
+	const settings = result;
+	writeFile( settings );
+});
