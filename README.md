@@ -41,5 +41,6 @@ The reference URL makes it easy to
 
 ## Release History
 
+* v1.0.1 - 📚 Update readme
 * v1.0.0 - ✨ Get test and reference URLs from prompt
 * v0.0.0 - 🎉 Initial commit
