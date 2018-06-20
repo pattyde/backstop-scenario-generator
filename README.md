@@ -1,8 +1,8 @@
 ⚾️ BackstopJS Scenario Generator
 ==============
 
-> A simple script to generate a [BackstopJS](https://github.com/garris/BackstopJS#testing-across-different-environments) configuration file from an array of
-URLs.
+> A simple script to generate a [BackstopJS](https://github.com/garris/BackstopJS#testing-across-different-environments)
+configuration file.
 
 ## Install
 
