@@ -43,10 +43,10 @@ const testTemplate = { // Template for your backstop.json configuration file. Ad
  * label, url, and referenceUrl will be unique for each scenario based on the
  * scenarioUrl
  *
- * @param  {string} scenarioUrl 		- The URL to test for this scenario
- * @param  {string} referenceUrl 		- The URL to test against for this scenario
+ * @param  {string} scenarioUrl     - The URL to test for this scenario
+ * @param  {string} referenceUrl    - The URL to test against for this scenario
  *
- * @return {object}									- The scenario object
+ * @return {object}                 - The scenario object
  */
 const createScenario = ( scenarioUrl, settings ) => ({
 	'label': setLabel( scenarioUrl, settings ),
@@ -71,9 +71,9 @@ const createScenario = ( scenarioUrl, settings ) => ({
 /**
  * Generate a unique label based on the url
  *
- * @param  {string} scenarioUrl	- The url unprocessed
+ * @param  {string} scenarioUrl - The url unprocessed
  *
- * @return {string}							- The label for the scenario
+ * @return {string}             - The label for the scenario
  */
 const setLabel = ( scenarioUrl, settings ) =>
 	scenarioUrl === settings['Test URL']
@@ -83,9 +83,9 @@ const setLabel = ( scenarioUrl, settings ) =>
 /**
  * Generate a reference url
  *
- * @param  {string} scenarioUrl	- The url unprocessed
+ * @param  {string} scenarioUrl - The url unprocessed
  *
- * @return {string}							- The reference url for the scenario
+ * @return {string}             - The reference url for the scenario
  */
 const setReferenceUrl = ( scenarioUrl, referenceUrl ) =>
 	referenceUrl + url.parse( scenarioUrl ).path;
@@ -93,10 +93,10 @@ const setReferenceUrl = ( scenarioUrl, referenceUrl ) =>
 /**
  * Generate JSON configuration file
  *
- * @param  {object} settings		- Settings object from the console prompt
- * @param  {object} template		- The template object
+ * @param  {object} settings    - Settings object from the console prompt
+ * @param  {object} template    - The template object
  *
- * @return {object}							- The finished object
+ * @return {object}             - The finished object
  */
 const generateObject = async ( settings, template = testTemplate ) => {
 	const scenarios = [];
@@ -135,7 +135,7 @@ prompt.start();
 /**
  * Get test URL and reference URL from the user
  *
- * @return {object}		Settings object with test and reference URLs
+ * @return {object} - Settings object with test and reference URLs
 */
 prompt.get([ 'Test URL', 'Reference URL' ], ( err, result ) => {
 	const settings = result;

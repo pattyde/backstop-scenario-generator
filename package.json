@@ -1,6 +1,6 @@
 {
 	"name": "backstop-scenario-generator",
-	"version": "1.0.1",
+	"version": "1.0.2",
 	"description": "Automatically generate BackstopJS scenarios.",
 	"main": "index.js",
 	"scripts": {
